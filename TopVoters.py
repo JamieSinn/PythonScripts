@@ -6,7 +6,7 @@ __author__ = 'JamieSinn'
 # Replace the month with the month you want to check for
 
 month = '09'
-with open('vote.log', 'r') as File:
+with open('votes.log', 'r') as File:
     votes = []
     content = File.readlines()
     for line in content:
