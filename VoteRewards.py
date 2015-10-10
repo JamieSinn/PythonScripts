@@ -1,6 +1,9 @@
 import re
 import collections
 import datetime
+__author__ = 'JamieSinn'
+# Use this with a V+otifier log to get the top 10 voters each month
+# Replace the month with the month you want to check for
 
 month = '09'
 with open('vote.log', 'r') as File:
