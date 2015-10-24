@@ -13,9 +13,8 @@ def email():
     import smtplib
     from email.mime.text import MIMEText
     import time
-    __author__ = 'Jamie'
-    USERNAME = "no-reply@sinndevelopment.com"
-    PASSWORD = ""
+    username = "no-reply@sinndevelopment.com"
+    password = ""
     f = open('top10.txt', 'rb')
     msg = MIMEText(re.sub("(\('username:|'|\))", '', f.read().replace(', (', '\n(')))
     f.close()
@@ -25,10 +24,9 @@ def email():
     conn = smtplib.SMTP_SSL('p3plcpnl002.prod.phx3.secureserver.net', 465)
     conn.set_debuglevel(False)
     conn.ehlo()
-    conn.login(USERNAME, PASSWORD)
+    conn.login(username, password)
     conn.sendmail('no-reply@sinndevelopment.com', '', msg.as_string())
     conn.quit()
-
 
 with open('votes.log', 'r') as File:
     votes = []
