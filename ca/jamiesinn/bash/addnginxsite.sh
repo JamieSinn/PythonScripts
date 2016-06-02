@@ -3,6 +3,14 @@ FILE="/etc/nginx/sites-available/$1"
 /bin/cat <<EOM >$FILE
 server {
     listen 80;
+    server name _$1;
+    return 301 https://$host$request_uri;
+}
+server {
+    listen 443;
+    ssl on;
+    ssl_certificate /root/cloudflarecert_$1.pem;
+    ssl_certificate_key /root/cloudflarekey_$1.pem;
     root /usr/share/nginx/sites/$1;
     index index.php index.html index.htm;
     server_name $1;
