@@ -15,35 +15,38 @@ def parseLogfile(logfile):
     logintimes = {}
     logouttimes = {}
     if os.path.isdir(logfile):
-        for arg in logfile:
-            parseLogfile(arg)
-    with open(logfile) as log:
-        lines = log.readlines()
-        print "Searching " + logfile
-        pattern = '%Y-%m-%d %H:%M:%S'
-        for staffmember in staff:
-            disconnects = []
-            logins = []
-            for line in lines:
-                logintime = re.search(
-                    '\d{4}-\d{2}-\d{2} ([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])? \[INFO\] %s\[' % staffmember,
-                    line)
-                disconnecttime = re.search(
-                    '\d{4}-\d{2}-\d{2} ([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])? \[INFO\] %s lost connection' %
-                    staffmember,
-                    line)
-                if logintime is not None:
-                    login = int(time.mktime(time.strptime(re.sub(' \[INFO\].*', '', logintime.group(0)), pattern)))
-                    logins.append(login)
-                if disconnecttime is not None:
-                    disconnect = int(
-                        time.mktime(time.strptime(re.sub(' \[INFO\].*', '', disconnecttime.group(0)), pattern)))
-                    disconnects.append(disconnect)
-                logintimes[staffmember] = logins
-                logouttimes[staffmember] = disconnects
-                continue
+        for _file in os.listdir(logfile):
+            parseLogfile(logfile + '/' + _file)
 
-    calcOnlineTime(logintimes, logouttimes)
+    try:
+        with open(logfile) as log:
+            lines = log.readlines()
+            print "Searching " + logfile
+            pattern = '%Y-%m-%d %H:%M:%S'
+            for staffmember in staff:
+                disconnects = []
+                logins = []
+                for line in lines:
+                    logintime = re.search(
+                        '\d{4}-\d{2}-\d{2} ([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])? \[INFO\] %s\[' % staffmember,
+                        line)
+                    disconnecttime = re.search(
+                        '\d{4}-\d{2}-\d{2} ([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])? \[INFO\] %s lost connection' %
+                        staffmember,
+                        line)
+                    if logintime is not None:
+                        login = int(time.mktime(time.strptime(re.sub(' \[INFO\].*', '', logintime.group(0)), pattern)))
+                        logins.append(login)
+                    if disconnecttime is not None:
+                        disconnect = int(
+                            time.mktime(time.strptime(re.sub(' \[INFO\].*', '', disconnecttime.group(0)), pattern)))
+                        disconnects.append(disconnect)
+                    logintimes[staffmember] = logins
+                    logouttimes[staffmember] = disconnects
+                    continue
+        calcOnlineTime(logintimes, logouttimes)
+    except IOError:
+        print "IOError - Skipping"
 
 
 def parseStaffList(_list):
@@ -63,7 +66,7 @@ def calcOnlineTime(logintimes, logouttimes):
         _online = 0
         for i in range(len(logout)):
             diff = datetime.fromtimestamp(logout[i]) - datetime.fromtimestamp(login[i])
-            _online += diff.seconds/60
+            _online += diff.seconds / 60
         print '\t' + staffmember + ': ' + str(_online)
 
 
