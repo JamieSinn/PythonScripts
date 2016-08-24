@@ -5,6 +5,8 @@ import sys
 import time
 from datetime import datetime
 
+total = {}
+
 
 def main():
     parseLogfile(sys.argv[2])
@@ -60,15 +62,22 @@ def parseStaffList(_list):
 
 def calcOnlineTime(logintimes, logouttimes):
     staff = parseStaffList(sys.argv[1])
-    for staffmember in staff:
-        login = logintimes[staffmember]
-        logout = logouttimes[staffmember]
+    for _staffmember in staff:
+        login = logintimes[_staffmember]
+        logout = logouttimes[_staffmember]
         _online = 0
         for i in range(len(logout)):
             diff = datetime.fromtimestamp(logout[i]) - datetime.fromtimestamp(login[i])
             _online += diff.seconds / 60
-        print '\t' + staffmember + ': ' + str(_online)
+#       print '\t' + _staffmember + ': ' + str(_online)
+        total[_staffmember] += _online
 
 
 if __name__ == '__main__':
+    for staffmember in parseStaffList(sys.argv[1]):
+        total[staffmember] = 0
     main()
+    for staffmember in parseStaffList(sys.argv[1]):
+        print staffmember + ': ' + str(total[staffmember])
+
+
