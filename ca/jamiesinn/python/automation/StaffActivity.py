@@ -3,6 +3,7 @@ import os
 import sys
 
 import time
+from datetime import datetime
 
 
 def main():
@@ -13,19 +14,17 @@ def parseLogfile(logfile):
     staff = parseStaffList(sys.argv[1])
     logintimes = {}
     logouttimes = {}
-
     if os.path.isdir(logfile):
         for arg in logfile:
             parseLogfile(arg)
-
     with open(logfile) as log:
         lines = log.readlines()
         print "Searching " + logfile
-        logins = []
-        disconnects = []
         pattern = '%Y-%m-%d %H:%M:%S'
-        for line in lines:
-            for staffmember in staff:
+        for staffmember in staff:
+            disconnects = []
+            logins = []
+            for line in lines:
                 logintime = re.search(
                     '\d{4}-\d{2}-\d{2} ([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])? \[INFO\] %s\[' % staffmember,
                     line)
@@ -42,8 +41,9 @@ def parseLogfile(logfile):
                     disconnects.append(disconnect)
                 logintimes[staffmember] = logins
                 logouttimes[staffmember] = disconnects
-    print logintimes
-    print logouttimes
+                continue
+
+    calcOnlineTime(logintimes, logouttimes)
 
 
 def parseStaffList(_list):
@@ -53,6 +53,18 @@ def parseStaffList(_list):
             line = line.replace('\n', '')
             staff.append(line)
     return staff
+
+
+def calcOnlineTime(logintimes, logouttimes):
+    staff = parseStaffList(sys.argv[1])
+    for staffmember in staff:
+        login = logintimes[staffmember]
+        logout = logouttimes[staffmember]
+        _online = 0
+        for i in range(len(logout)):
+            diff = datetime.fromtimestamp(logout[i]) - datetime.fromtimestamp(login[i])
+            _online += diff.seconds/60
+        print '\t' + staffmember + ': ' + str(_online)
 
 
 if __name__ == '__main__':
