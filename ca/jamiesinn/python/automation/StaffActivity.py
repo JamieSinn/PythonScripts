@@ -69,15 +69,20 @@ def calcOnlineTime(logintimes, logouttimes):
         for i in range(len(logout)):
             diff = datetime.fromtimestamp(logout[i]) - datetime.fromtimestamp(login[i])
             _online += diff.seconds / 60
-#       print '\t' + _staffmember + ': ' + str(_online)
+#        print '\t' + _staffmember + ': ' + str(_online/60)
         total[_staffmember] += _online
 
 
 if __name__ == '__main__':
-    for staffmember in parseStaffList(sys.argv[1]):
+    staff = parseStaffList(sys.argv[1])
+    for staffmember in staff:
         total[staffmember] = 0
     main()
-    for staffmember in parseStaffList(sys.argv[1]):
-        print staffmember + ': ' + str(total[staffmember])
+    _total = 0
+    for staffmember in staff:
+        _total += total[staffmember]
+        print staffmember + ': ' + str((total[staffmember]/60))
+    print float(_total/len(staff))/60
+
 
 
