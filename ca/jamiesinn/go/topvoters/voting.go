@@ -14,9 +14,10 @@ import (
 func main() {
 	args := os.Args[1:]
 	if len(args) < 2 {
-		panic("Usage: ./voting (path to votes.log) (path to output file)")
+		fmt.Println("Usage: ./voting <path to votes.log> <path to output file>")
+		return
 	}
-	fmt.Println("Getting votes for " + time.Now().AddDate(0, -1, 0).Month().String() + " " + string(time.Now().Year()))
+	fmt.Println("Getting votes for " + time.Now().AddDate(0, -1, 0).Month().String() + " " + strconv.Itoa(time.Now().Year()))
 	currentVotes := stripCurrentVotes(args[0])
 	stripped := stripPlayer(currentVotes)
 	top10 := getTop10(stripped)
@@ -32,13 +33,14 @@ func getTop10(votes []string) VoteList {
 	vl := make(VoteList, len(count))
 	i := 0
 	for player, votes := range count {
-		if i >= 10 {
-			break
+		if player == "" {
+			continue
 		}
 		vl[i] = Vote{player, votes}
 		i++
 	}
 	sort.Sort(sort.Reverse(vl))
+	vl = vl[:10]
 	return vl
 }
 
@@ -50,27 +52,26 @@ func writeTop10(votes VoteList, output string) {
 	f, err := os.Create(output)
 	check(err)
 	defer f.Close()
-
+	fmt.Print(votes)
 	writer := bufio.NewWriter(f)
-	for i := range votes {
-		writer.WriteString(votes[i].Player + "\n")
-	}
-	writer.WriteString("\n\n")
+	defer writer.Flush()
 	writer.WriteString(forumpost)
+	for i := range votes {
+		writer.WriteString("@" + votes[i].Player + "\n")
+	}
+	writer.WriteString("[USERGROUP=19]@Server Admin[/USERGROUP] - Please update the Event Tokens thread.")
+	writer.WriteString("\n\n")
 	medalList := ""
 	for i := range votes {
-		if i < 10 {
-			medalList += votes[i].Player + ","
-		} else {
-			break
-		}
+		medalList += votes[i].Player + ","
 	}
 	writer.WriteString(medalList)
 	writer.WriteString("\n\n")
 
 	for i := range votes {
-		writer.WriteString(votes[i].Player + ":" + string(votes[i].Votes) + "\n")
+		writer.WriteString(votes[i].Player + ":" + strconv.Itoa(votes[i].Votes) + "\n")
 	}
+
 }
 
 func stripPlayer(votes []string) []string {
@@ -96,8 +97,13 @@ func stripCurrentVotes(votefile string) []string {
 
 	for scanner.Scan() {
 		_timestamp, err := strconv.ParseInt(strings.Replace(timestampStrip.FindString(scanner.Text()), "timeStamp:", "", -1), 10, 64)
+
 		check(err)
 		timestamp := time.Unix(_timestamp, 0)
+
+		if timestamp.Year() > time.Now().Year() {
+			continue
+		}
 
 		if time.Now().Year() == timestamp.Year() && time.Now().AddDate(0, -1, 0).Month() == timestamp.Month() {
 			votes = append(votes, scanner.Text())
