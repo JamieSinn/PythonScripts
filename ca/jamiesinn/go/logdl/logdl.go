@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/dutchcoders/goftp"
+	"github.com/sinndevelopment/golib"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 	host := args[0]
 	user := args[1]
 	pass := args[2]
-	dir := getFinalArgs(args, 3)
+	dir := golib.GetFinalArgs(args, 3)
 
 	if ftp, err = goftp.Connect(host + ":21"); err != nil {
 		panic(err)
@@ -69,9 +70,4 @@ func downloadFile(file string, ftp *goftp.FTP) {
 func handleArgs() bool {
 	args := os.Args[1:]
 	return len(args) >= 4
-}
-
-func getFinalArgs(slice []string, start int) string {
-	result := strings.Join(slice[start:len(slice)], " ")
-	return result
 }
