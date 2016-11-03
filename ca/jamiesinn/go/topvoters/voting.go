@@ -45,10 +45,10 @@ func getTop10(votes []string) VoteList {
 }
 
 func writeTop10(votes VoteList, output string) {
-	forumpost := "[SIZE=3][FONT=Arial][COLOR=rgb(153, 255, 204)]Congratulations to all our %s voting winnners!\n" +
-		"%s Top Prizes: 5/5/5/5/4/4/4/3/3/2 Event Tokens + Voting Medal!\n" +
+	forumpost := "[SIZE=3][FONT=Arial][COLOR=rgb(153, 255, 204)]Congratulations to all our <month> voting winnners!\n" +
+		"<month> Top Prizes: 5/5/5/5/4/4/4/3/3/2 Event Tokens + Voting Medal!\n" +
 		"[/COLOR][/FONT][/SIZE]\n"
-
+	forumpost = strings.Replace(forumpost, "<month>", time.Now().AddDate(0, -1, 0).Month().String(), -1)
 	f, err := os.Create(output)
 	check(err)
 	defer f.Close()

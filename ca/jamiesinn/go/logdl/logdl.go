@@ -24,17 +24,13 @@ func main() {
 	if ftp, err = goftp.Connect(host + ":21"); err != nil {
 		panic(err)
 	}
-
 	defer ftp.Close()
-
 	if err = ftp.Login(user, pass); err != nil {
 		panic(err)
 	}
-
 	if err = ftp.Cwd(dir); err != nil {
 		panic(err)
 	}
-
 	var curpath string
 	if curpath, err = ftp.Pwd(); err != nil {
 		panic(err)
